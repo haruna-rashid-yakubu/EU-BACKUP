@@ -1,0 +1,63 @@
+services:
+  postgres:
+    container_name: postgres
+    build:
+      context: ./database 
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    networks:
+      - eu
+
+  backend:
+    container_name: backend
+    image: harounrashid/express-union_backend_prod
+    restart: always
+    privileged: true  # Allows access to serial devices
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+      - "/dev/ttyUSB2:/dev/ttyUSB2"
+      - "/dev/ttyUSB3:/dev/ttyUSB3"
+      - "/dev/ttyUSB4:/dev/ttyUSB4"
+      - "/dev/ttyUSB4:/dev/ttyUSB5"
+      - "/dev/ttyUSB4:/dev/ttyUSB6"
+      - "/dev/ttyUSB4:/dev/ttyUSB7"
+      - "/dev/ttyUSB4:/dev/ttyUSB8"
+      - "/dev/ttyUSB4:/dev/ttyUSB9"
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+    ports:
+      - "8001:8000"
+    networks:
+      - eu
+
+  frontend:
+    container_name: frontend
+    image: harounrashid/express-union_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+    privileged: true  # Allows access to serial devices
+    devices:
+      - "/dev/ttyUSB2:/dev/ttyUSB2"
+    env_file:
+      - ./.env
+    ports:
+      - "80:80"
+    networks:
+      - eu
+
+volumes:
+  db:
+
+networks:
+  eu:
